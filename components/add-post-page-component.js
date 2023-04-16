@@ -1,9 +1,14 @@
 import { user } from '../index.js'
 import { goToPage, logout } from '../index.js'
 import { POSTS_PAGE } from '../routes.js'
-import{uploadImage} from '../api.js'
-export function renderAddPostPageComponent ({ appEl, onAddPostClick, onImageUrlChange }) {
-  let imageUrl = '';
+import { uploadImage, postPosts } from '../api.js'
+
+export function renderAddPostPageComponent ({
+  appEl,
+  onAddPostClick,
+  onImageUrlChange
+}) {
+  let imageUrl = ''
   const render = () => {
     // TODO: Реализовать страницу добавления поста
     const appHtml = `
@@ -12,15 +17,9 @@ export function renderAddPostPageComponent ({ appEl, onAddPostClick, onImageUrlC
       <div class="page-header">
     <h1 class="logo">instapro</h1>
     <button class="header-button add-or-login-button">
-    ${
-      user ? `<div title="Добавить пост" class="add-post-sign"></div>` : 'Войти'
-    }
+    <div title="Добавить пост" class="add-post-sign"></div>
     </button>
-    ${
-      user
-        ? `<button title="${user.name}" class="header-button logout-button">Выйти</button>`
-        : ''
-    }  
+   <button title="${user.name}" class="header-button logout-button">Выйти</button>
     </button>
 </div>
       <div class="form">
@@ -61,40 +60,42 @@ export function renderAddPostPageComponent ({ appEl, onAddPostClick, onImageUrlC
   `
 
     appEl.innerHTML = appHtml
-    const photoSpecification = document.querySelector('.textarea')
+    const descriptionImage = document.querySelector('.input.textarea');
+    console.log(descriptionImage.value);
+    const fileInputElement = document.querySelector('.file-upload-input');
     
 
     document.getElementById('add-button').addEventListener('click', () => {
       onAddPostClick({
-        description: photoSpecification.value,
-        imageUrl,
+        description:descriptionImage.value,
+        imageUrl
       })
     })
-    const fileInputElement = appEl.querySelector(".file-upload-input");
-    console.log(fileInputElement);
-
-    fileInputElement?.addEventListener("change", () => {
-      const file = fileInputElement.files[0];
+    
+    fileInputElement?.addEventListener('change', () => {
+      const file = fileInputElement.files[0]
       if (file) {
-        const lableEl = document.querySelector(".file-upload-label");
-        lableEl.setAttribute("disabled", true);
-        lableEl.textContent = "Загружаю файл...";
+        const lableEl = document.querySelector('.file-upload-label')
+        lableEl.setAttribute('disabled', true)
+        lableEl.textContent = 'Загружаю файл...'
         uploadImage({ file }).then(({ fileUrl }) => {
-          console.log(fileUrl);
-          imageUrl = fileUrl;
+          console.log(fileUrl)
           // onImageUrlChange(imageUrl);
-          render();
-        });
+
+          imageUrl = fileUrl
+          console.log(imageUrl);
+          render()
+        })
       }
-    });
+    })
 
     appEl
-      .querySelector(".file-upload-remove-button")
-      ?.addEventListener("click", () => {
-        imageUrl = "";
+      .querySelector('.file-upload-remove-button')
+      ?.addEventListener('click', () => {
+        imageUrl = ''
         // onImageUrlChange(imageUrl);
-        render();
-      });
+        render()
+      })
   }
   render()
   document.querySelector('.logout-button').addEventListener('click', () => {
