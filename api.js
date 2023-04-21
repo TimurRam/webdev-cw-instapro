@@ -1,6 +1,4 @@
-// import {getUserIdFromLocalStorage} from "./helpers.js"
-// let userId = getUserIdFromLocalStorage();
-// console.log(userId);
+
 // Замени на свой, чтобы получить независимый от других набор данных.
 // "боевая" версия инстапро лежит в ключе prod
 
@@ -26,7 +24,7 @@ export function getPosts ({ token }) {
       return response.json()
     })
     .then(data => {
-      // console.log(data.posts)
+
 
       return data.posts
     })
