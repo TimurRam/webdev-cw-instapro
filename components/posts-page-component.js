@@ -1,11 +1,14 @@
 import { USER_POSTS_PAGE } from '../routes.js'
 import { renderHeaderComponent } from './header-component.js'
-import { posts, goToPage } from '../index.js'
+import { posts, goToPage, getToken, user } from '../index.js'
+import { likePost, disLikePost } from '../api.js'
+import { quantityUsers } from '../helpers.js'
+import { formatDistanceToNow } from 'date-fns'
+import { ru } from 'date-fns/locale'
 
 export function renderPostsPageComponent ({ appEl }) {
   // TODO: реализовать рендер постов из api
-  console.log('Актуальный список постов:', posts)
-  console.log(posts)
+
   /**
    * TODO: чтобы отформатировать дату создания поста в виде "19 минут назад"
    * можно использовать https://date-fns.org/v2.29.3/docs/formatDistanceToNow
@@ -27,7 +30,9 @@ export function renderPostsPageComponent ({ appEl }) {
                       <img class="post-image" src="${post.imageUrl}">
                     </div>
                     <div class="post-likes">
-                      <button data-post-id="${post.id}" class="like-button">
+                      <button data-post-id="${
+                        post.id
+                      }" data-index="${index}" class="like-button">
                         <img src="./assets/images/${
                           post.isLiked
                             ? 'like-active.svg'
@@ -38,7 +43,7 @@ export function renderPostsPageComponent ({ appEl }) {
                         Нравится: <strong>${
                           post.likes.length > 1
                             ? post.likes[0].name +
-                              ` и еще ${post.likes.length - 1} пользователям`
+                              ` и еще ${quantityUsers(post.likes.length - 1)} `
                             : post.likes.length
                             ? post.likes[0].name
                             : '0'
@@ -50,14 +55,14 @@ export function renderPostsPageComponent ({ appEl }) {
                       ${post.description}
                     </p>
                     <p class="post-date">
-                      19 минут назад
+                      ${formatDistanceToNow(new Date(post.createdAt),{locale: ru, addSuffix: true} )}
                     </p>
                   </li>
                 </ul>
               </div>`
     })
     .join('')
-
+  console.log()
   appEl.innerHTML = appHtml
 
   renderHeaderComponent({
@@ -71,4 +76,37 @@ export function renderPostsPageComponent ({ appEl }) {
       })
     })
   }
+
+  function likeActive () {
+    const likeButtons = document.querySelectorAll('.like-button')
+
+    for (const likeButton of likeButtons) {
+      likeButton.addEventListener('click', () => {
+        const index = likeButton.dataset.index
+        const id = likeButton.dataset.postId
+        if (user) {
+          likeButton.classList.add('loading-like');
+
+          if (posts[index].isLiked === false) {
+            likePost({ id, token: getToken() })
+            posts[index].isLiked = true
+            posts[index].likes.push({
+              id: posts[index].user.id,
+              name: posts[index].user.name
+            })
+          } else {
+            posts[index].isLiked = false
+            posts[index].likes.pop()
+            disLikePost({ id, token: getToken() })
+          }
+        }
+        setTimeout(()=>{
+          renderPostsPageComponent({ appEl })
+          
+        },500)
+      })
+    }
+  }
+
+  likeActive()
 }

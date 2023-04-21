@@ -3,9 +3,13 @@
 // console.log(userId);
 // Замени на свой, чтобы получить независимый от других набор данных.
 // "боевая" версия инстапро лежит в ключе prod
-const personalKey = 'timur-ramazanon'
+
+const personalKey = 'timur-ramazanov'
 const baseHost = 'https://webdev-hw-api.vercel.app'
-const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`
+export const postsHost = `${baseHost}/api/v1/${personalKey}/instapro`
+
+
+
 
 export function getPosts ({ token }) {
   return fetch(postsHost, {
@@ -22,7 +26,7 @@ export function getPosts ({ token }) {
       return response.json()
     })
     .then(data => {
-      console.log(data.posts)
+      // console.log(data.posts)
 
       return data.posts
     })
@@ -48,6 +52,33 @@ export function getPostsUser ({ token, id }) {
       return data.posts
     })
 }
+
+export function likePost ({ token, id }) {
+  return fetch(postsHost + '/' + id + '/like', {
+    method: 'POST',
+    headers: {
+      Authorization: token
+    }
+  }).then(response => {
+    if (response.status === 401){
+      throw new Error('нет авторизации')
+    }
+    // return response.json();
+  })
+}
+export function disLikePost ({ token, id }) {
+  return fetch(postsHost + '/' + id + '/dislike', {
+    method: 'POST',
+    headers: {
+      Authorization: token
+    }
+  }).then(response => {
+    if (response.status === 401){
+      throw new Error('нет авторизации')
+    }
+    // return response.json();
+  })
+}
 export function postPosts ({ description, imageUrl, token }) {
   return fetch(postsHost, {
     method: 'POST',
@@ -59,7 +90,7 @@ export function postPosts ({ description, imageUrl, token }) {
       imageUrl: imageUrl
     })
   }).then(response => {
-console.log(token);
+    console.log(token)
 
     if (response.status === 401) {
       throw new Error('Нет авторизации')
@@ -110,6 +141,7 @@ export function uploadImage ({ file }) {
     method: 'POST',
     body: data
   }).then(response => {
+    console.log(response);
     return response.json()
   })
 }

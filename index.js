@@ -1,4 +1,4 @@
-import { getPosts, getPostsUser, postPosts } from './api.js'
+import { getPosts, getPostsUser } from './api.js'
 import { renderAddPostPageComponent } from './components/add-post-page-component.js'
 import { renderAuthPageComponent } from './components/auth-page-component.js'
 import {
@@ -14,22 +14,16 @@ import {
   getUserFromLocalStorage,
   removeUserFromLocalStorage,
   saveUserToLocalStorage
-  // saveUserIdLocaleStorage,
-  // getUserIdFromLocalStorage,
-  // removeUserIdFromLocalStorage
 } from './helpers.js'
-import { renderUserPost } from './components/user-post-page-component.js'
 
 export let user = getUserFromLocalStorage()
 export let page = null
 export let posts = []
-// export let UserId = getUserIdFromLocalStorage();
 
-const getToken = () => {
+export const getToken = () => {
   const token = user ? `Bearer ${user.token}` : undefined
   return token
 }
-
 export const logout = () => {
   user = null
   removeUserFromLocalStorage()
@@ -39,6 +33,7 @@ export const logout = () => {
 /**
  * Включает страницу приложения
  */
+
 export const goToPage = (newPage, data) => {
   if (
     [
@@ -93,7 +88,7 @@ export const goToPage = (newPage, data) => {
   throw new Error('страницы не существует')
 }
 
-const renderApp = () => {
+export const renderApp = () => {
   const appEl = document.getElementById('app')
   if (page === LOADING_PAGE) {
     return renderLoadingPageComponent({
@@ -119,14 +114,8 @@ const renderApp = () => {
   if (page === ADD_POSTS_PAGE) {
     return renderAddPostPageComponent({
       appEl,
-      onAddPostClick ({ description, imageUrl, token }) {
-        // TODO: реализовать добавление поста в API
-        postPosts({description, imageUrl, token: getToken()})
-        console.log('Добавляю пост...', { description, imageUrl, token })
+      onAddPostClick ({ description, imageUrl }) {
         goToPage(POSTS_PAGE)
-
-
-        
       }
     })
   }
@@ -139,7 +128,7 @@ const renderApp = () => {
 
   if (page === USER_POSTS_PAGE) {
     // TODO: реализовать страницу фотографию пользвателя
-    return renderUserPost({ appEl })
+    return renderPostsPageComponent({ appEl })
   }
 }
 
